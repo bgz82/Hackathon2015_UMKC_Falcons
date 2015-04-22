@@ -16,9 +16,7 @@ if(session.getAttribute("login") != null)
 }
 
 %>
-<jsp:forward page="index.jsp"> 
-<jsp:param name="value" value="no" /> 
-</jsp:forward> 
+<jsp:forward page="index.jsp"/>  
 
 </body>
 </html>

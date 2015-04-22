@@ -16,7 +16,7 @@
 <script type="javascript">
 function read()
 {
-alert("BALU");
+//alert("BALU");
 }
 </script>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -25,9 +25,9 @@ alert("BALU");
 
 <%
 
-String pass = request.getParameter("pass1");
 String user = request.getParameter("user1");
-if(session.getAttribute("login").toString().equals(user))
+String pass = request.getParameter("pass1");
+if(user != null ||  pass != null)
 {
 try{
 java.util.Properties props = new java.util.Properties();
@@ -43,8 +43,8 @@ Session tsession = Session.getDefaultInstance(props);
 Message msg = new MimeMessage(tsession);
 msg.setFrom(new InternetAddress("bhargavaakhi@gmail.com"));//set from mailId here.
 msg.setRecipient(Message.RecipientType.TO, new InternetAddress(user));//set to mailId here.
-msg.setSubject("Password Recovery");//mail Subject
-msg.setContent("Your Password is " + pass,"text/plain");//mail content in plain format
+msg.setSubject("YSE : Email for Password Recovery");//mail Subject
+msg.setContent("Your Password for YSE Account is " + pass + " .Please use the link http://localhost:8080/YouTube/index.jsp to login.","text/plain");//mail content in plain format
 
 String mailHost= "smtp.gmail.com";//mailHost for your mail provider.For gmail smtp.gmail.com
 String userName = "bhargavaakhi@gmail.com";//userName for an E-mail provider.
@@ -64,14 +64,15 @@ catch(Exception e){
 }
 else
 {
-	%> <jsp:forward page="index.jsp"></jsp:forward>   <%	
+	user = "invalid";
+	pass="invalid";
 }
 /*request.setAttribute("user", user);
 request.setAttribute("pass", pass);*/
 %>
 <jsp:forward page="forgot.jsp"> 
-<jsp:param name="user" value="${user}" /> 
-<jsp:param name="pass" value="${pass}" />
+<jsp:param name="user" value="${user}" />
+<jsp:param name="pass" value="${pass}" /> 
 </jsp:forward> 
 
 </body>

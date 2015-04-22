@@ -20,22 +20,32 @@
     {
       var user;
       var pass;
-      var result="1";
+      var result;
       user = document.getElementById("user").value;
       pass =  document.getElementById("pass").value;
         $.ajax({
-                 url: "http://localhost:8080/youtuberest/webresources/youtube/login?user="+ user + "&pass=" + pass,
+                 url: "http://localhost:8080/youtuberestservice/webresources/youtube/login?user="+ user + "&pass=" + pass,
                  type: 'GET',
                  success: function disp(msg){
-                    result = msg; 	 
+                    result = msg;
+                    //alert(msg);
                 if(result == "0")
                 	{
+                	   //alert(result);
+                	   //document.sub.action = "userhome.jsp";
                 	   document.getElementById("sub").submit();
                 	}
-                    else
+                    else if(result == "1")
                 	{
-                	 //   alert(result);
-                	    window.location.replace("index.jsp");
+                    	
+                	    alert("Invalid Password");
+                	    document.getElementById("pass").value="";
+                	}
+                    else
+                    	{
+                    	alert("Invalid Username");
+                	    document.getElementById("pass").value="";
+                	    document.getElementById("user").value="";
                 	}
  
                  }
@@ -44,24 +54,8 @@
    function loginCookie(users)
    {
 	   var user = users;
-       var result="1";
-       $.ajax({
-                url: "http://localhost:8080/youtuberest/webresources/youtube/login?user="+ user + "&pass=" + pass,
-                type: 'GET',
-                success: function disp(msg){
-                   result = msg; 	 
-               if(result == "0")
-               	{
-            	   document.getElementById("user").value=user;
-               	}
-                   else
-               	{
-               	    alert(result);
-               	    window.location.replace("index.jsp");
-               	}
-
-                }
-              });         
+                       document.getElementById("user").value=user;
+                       document.getElementById("pass").value="";
                }
    </script>
   
@@ -71,16 +65,16 @@
   <section class="container">
     <div class="login">
       <h1>Login Page</h1>
-      <form id="sub" method="post" action="userhome.jsp">
+      <form id="sub" name="sub" method="post" action="userhome.jsp">
         <p><input type="text" name="login" value="" id="user" placeholder="Email"></p>
-        <p><input type="password" name="password" value="" id="pass" placeholder="******"></p>
+        <p><input type="password" name="password" value="" id="pass" placeholder=""></p>
         <p class="remember_me">
           <label>
             <input type="checkbox" name="rem" id="rem" value="checked">
             Remember me on this computer
           </label>
         </p>
-        <p class="submit"><input type="submit" onclick="return getData();" value="Login"></p>
+        <p class="submit"><input type="button" onclick="return getData();" value="Login"></p>
       </form>
     </div>
 
@@ -92,14 +86,7 @@
 try{
 	
 	//session.setAttribute( "login", "login" );
-	String checkCookie = request.getParameter("value");
-	if(checkCookie != null && checkCookie.equals("no"))
-	{
-		//do nothing
-	}
-	else
-	{
-      Cookie[] cookies = request.getCookies();
+	  Cookie[] cookies = request.getCookies();
       for (int i = 0; i < cookies.length; i++) {
         Cookie cookie = cookies[i];
         if (cookie.getName().equals("ytube")) {
@@ -118,7 +105,7 @@ try{
         }
         }
       }
-    }
+    
     }catch(Exception e){
      e.printStackTrace();
 }

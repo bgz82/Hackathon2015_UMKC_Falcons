@@ -16,6 +16,18 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.net.*" %>
 <%@ page import="java.io.*" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="org.apache.http.HttpResponse" %>
+<%@ page import="org.apache.http.client.HttpClient" %>
+<%@ page import="org.apache.http.client.methods.HttpGet" %>
+<%@ page import="org.apache.http.client.methods.HttpPost" %>
+<%@ page import="org.apache.http.entity.StringEntity" %>
+<%@ page import="org.apache.http.impl.client.DefaultHttpClient" %>
+<%@ page import="org.apache.http.message.BasicHeader" %>
+<%@ page import="org.apache.http.protocol.HTTP" %>
+<%@ page import="com.google.gson.Gson" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.text.DateFormat" %>
 
 
 
@@ -24,7 +36,7 @@
 
 <html lang="en">
 <head>
-<title>Image Database</title>
+<title>User HOME</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet"
@@ -42,35 +54,42 @@
 	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
 <script type="text/javascript">
+
 	function getSearch() {
 		var text;
+		var temp;
 		var dataList = document.getElementById('json');
+		var optionvalues;
+		var temp;
 		var input = document.getElementById('search');
-		//var apiKey="AIzaSyBaVwTy7gUwhXcbYwcQ1PdlYGGUOhGDBzo";
 		text = document.getElementById("search").value;
-		if (text == "") {
 			var childArray = dataList.children;
 			while (childArray.length > 0) {
 				dataList.removeChild(childArray[0]);
 			}
-		}
-		$
-				.ajax({
+
+		$.ajax({
 					url : "http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&q="
 							+ text,
 					type : 'GET',
 					dataType : 'jsonp',
 					success : function disp(data) {
 						var i = 0;
+						optionvalues="";
+						temp="";
 						while (i < data[1].length) {
 							var option = document.createElement('option');
 							option.value = data[1][i][0];
+							optionvalues+=data[1][i][0]+";";
 							dataList.appendChild(option);
 							//  alert(data[1][i][0]);
 							i++;
 
 						}
-
+						temp = document.getElementById("hoption").value;
+						document.getElementById("hoption1").value=temp;
+						document.getElementById("hoption").value=optionvalues;
+						//alert(temp);
 					},
 					error : function(XMLHttpRequest, textStatus, errorThrown) {
 
@@ -84,6 +103,10 @@
 		alert("BALU");
 		console.log("invoked searchQuery");
 	}
+	
+	
+
+
 </script>
 </head>
 
@@ -193,17 +216,23 @@
 						onkeyup="getSearch()">
 					<datalist id="json"></datalist>
 				</div>
-				<button type="submit" class="btn btn-default">Search</button>
+				<input type=hidden name="hoption" id="hoption">
+				<input type=hidden name="hoption1" id="hoption1">
+				<button type="submit" class="btn btn-default" onclick="return storeSearch()">Search</button>
 			</form>
 
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="logout.jsp">LogOut</a></li>
 			</ul>
-
+<ul class="nav navbar-nav navbar-right">
+				<li><a href="userFrequency.jsp">Users Login Stats</a></li>
+			</ul>
 		</div>
 	</div>
 	</nav>
+	<br><br><br><br><br><br>
 	
+	<center><font size=5 color="Blue" > Use Search option to find the YouTube Videos</font></center>
 	
 <div class="container">
   <div class="row">
@@ -214,7 +243,7 @@
           <%
           if(resultList != null){
         	  %>
-     <div class="panel-body" style="background-image: url(content/bg1.jpg); height: auto; width: auto; border: 1px solid black;">
+     <div class="panel-body" style="background-image: url(content/redbg.jpg); height: auto; width: auto; border: 1px solid black;">
           <!--/stories-->
            	  
 	<h3 align="center">
@@ -264,8 +293,7 @@
                   <tr><td><%=item.getStatistics().getViewCount() %>, views</td></tr>
                   <tr><td><%=aviews %>, Average Views</td></tr>
                   <tr><td><%=item.getStatistics().getLikeCount() %>, likes</td></tr>
-                  <tr><td><%=item.getSnippet().getDescription().substring(0, length) %></td></tr>
-                  
+                  <tr><td><%=item.getSnippet().getDescription().substring(0, length) %></td></tr>                  
                   </table>
                   </font>
                   </div>
@@ -278,25 +306,41 @@
 	<% 
             }
             
-            
            if(search != null){ 
             try
             {
-             String url = "http://localhost:8080/youtuberest/webresources/youtube/update?email="+ user + "&search=" + search;
-             String newURL = url.replaceAll(" ", "%20");
-             URL dest = new URL(newURL);
-             URLConnection yc = dest.openConnection();
-             BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-             String inputLine="";
-             String getData="";
-             int i=0;
-             while ((inputLine = in.readLine()) != null)
-               {
-                 getData+=inputLine;
-                 i++;
-               }
-             in.close();
-             i=0;
+            	String option = request.getParameter("hoption1");
+            	//out.println("BALU : " + option);
+            	String[] options = option.split(";");
+                java.util.Date today = Calendar.getInstance().getTime();
+                SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd;HH:mm:ss");
+                String date = simpleFormat.format(today);
+                
+                
+            	com.youtube.adk.Video v = new com.youtube.adk.Video(user,options,date);
+                String url = "http://localhost:8080/youtuberestservice/webresources/youtube/update?email="+ user;
+                String newURL = url.replaceAll(" ", "%20");
+                HttpClient client = new DefaultHttpClient();
+    			HttpPost post;
+    			HttpGet get;
+    			HttpResponse response1 = null;
+    			try{
+    			Gson gson = new Gson();
+    			post = new HttpPost(url);
+    			post.setHeader("Accept", "application/json");
+    			post.setHeader("Content-Type", "application/json");
+    			//out.println("great!!");
+    			StringEntity se = new StringEntity(gson.toJson(v));
+    			//System.out.println("End of json create");
+    			se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+    			post.setEntity(se);
+    			response1 = client.execute(post);
+    			//out.println("Response : " + response1);
+    			}
+    			catch(Exception e){
+    			out.println(e);
+    			}
+
             }
             catch(Exception e)
              {

@@ -15,30 +15,31 @@
 
    function getData()
     {
+	  alert("BALU");
       var user;
       var pass;
       var result="1";
       user = document.getElementById("user").value;
+      //alert(user);
       $.ajax({
-                 url: "http://localhost:8080/youtuberest/webresources/youtube/forgot?user="+ user,
+                 url: "http://localhost:8080/youtuberestservice/webresources/youtube/forgot?user="+ user,
                  type: 'GET',
                  success: function disp(msg){
                     result = msg; 	 
                     if(result == "1")
                 	{
-                	   //window.location.replace("sendEmail.jsp");
+                	   alert("Invalid user name");
                 	}
                     else
                 	{
-                    	
-                    	document.getElementById("user1").value=user;
                     	document.getElementById("pass1").value=result;
+                    	document.getElementById("user1").value=user;
                     	document.getElementById("sub").submit();
                 	}
  
                  },
                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        alert(errorThrown);             	    
+                        alert("Ajax Call Failed");             	    
              	}
 
                });         
@@ -63,6 +64,13 @@
       String pass = request.getParameter("pass");
       if(user != null && pass != null)
       {
+    	  if(user.equals("invalid") || pass.equals("invalid"))
+    	  {
+    		  %> <h2> Invalid UserName</h2> <%  
+    	  }
+    	  else
+    	  {
+    		  out.println(user + ";" + pass);
     	  %> <section class="container">
     <div class="res">
         <p align="center"><font color="white" size="4">Password has been sent to the User Email Address.</font></p>
@@ -70,6 +78,7 @@
     <p align="center"><font color="white" size="3"><a href="index.jsp">Click here to Login </a></font></p>
       </section>
       <%
+    	  }
       
       }
       
